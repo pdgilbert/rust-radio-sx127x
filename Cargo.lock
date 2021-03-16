@@ -1166,9 +1166,9 @@ dependencies = [
 
 [[package]]
 name = "stm32l0xx-hal"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb3d290213676eebb026c57d93d76e878ba554f3781693bb132891aedae83a8e"
+checksum = "92751ef18889ca54d819aef3c19f2b2cf475dcc0699a41908919c161be3574b7"
 dependencies = [
  "as-slice",
  "cast",
