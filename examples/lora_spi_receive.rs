@@ -104,7 +104,7 @@ const CONFIG_RADIO: radio_sx127x::device::Config = radio_sx127x::device::Config 
 #[cfg(feature = "stm32f0xx")] //  eg stm32f030xc
 use stm32f0xx_hal::{
     delay::Delay,
-    pac::Peripherals,
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
 };
@@ -113,7 +113,7 @@ use stm32f0xx_hal::{
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let mut p = Peripherals::take().unwrap();
     let mut rcc = p.RCC.configure().freeze(&mut p.FLASH);
 
@@ -157,7 +157,7 @@ fn setup(
 #[cfg(feature = "stm32f1xx")] //  eg blue pill stm32f103
 use stm32f1xx_hal::{
     delay::Delay,
-    pac::Peripherals,
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
 };
@@ -166,7 +166,7 @@ use stm32f1xx_hal::{
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
 
     let mut rcc = p.RCC.constrain();
@@ -215,16 +215,17 @@ fn setup(
 #[cfg(feature = "stm32f3xx")] //  eg Discovery-stm32f303
 use stm32f3xx_hal::{
     delay::Delay,
+    pac::{CorePeripherals, Peripherals},
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
-    stm32::Peripherals,
 };
 
 #[cfg(feature = "stm32f3xx")]
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
 
     let mut rcc = p.RCC.constrain();
@@ -284,9 +285,10 @@ fn setup(
 #[cfg(feature = "stm32f4xx")]
 use stm32f4xx_hal::{
     delay::Delay,
+    pac::{CorePeripherals, Peripherals},
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
-    stm32::Peripherals,
     time::MegaHertz,
 };
 
@@ -294,7 +296,7 @@ use stm32f4xx_hal::{
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
 
     let rcc = p.RCC.constrain();
@@ -351,7 +353,7 @@ use stm32f7xx_hal::{
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
 
     let mut rcc = p.RCC.constrain();
@@ -388,12 +390,17 @@ fn setup(
 }
 
 #[cfg(feature = "stm32h7xx")]
-use stm32h7xx_hal::{delay::Delay, pac::Peripherals, prelude::*, spi::Error};
+use stm32h7xx_hal::{
+    delay::Delay,
+    pac::{CorePeripherals, Peripherals},
+    prelude::*,
+    spi::Error,
+};
 
 #[cfg(feature = "stm32h7xx")]
 fn setup() -> impl DelayMs<u32>
        + Receive<Info = PacketInfo, Error = sx127xError<Error, stm32h7xx_hal::Never, Infallible>> {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
     let pwr = p.PWR.constrain();
     let vos = pwr.freeze();
@@ -437,7 +444,7 @@ fn setup() -> impl DelayMs<u32>
 
 #[cfg(feature = "stm32l0xx")]
 use stm32l0xx_hal::{
-    pac::Peripherals,
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     rcc, // for ::Config but note name conflict with serial
     spi::Error,
@@ -450,7 +457,7 @@ use void;
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, void::Void, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
     let mut rcc = p.RCC.freeze(rcc::Config::hsi16());
     let gpioa = p.GPIOA.split(&mut rcc);
@@ -488,17 +495,18 @@ fn setup(
 
 #[cfg(feature = "stm32l1xx")] // eg  Discovery kit stm32l100 and Heltec lora_node STM32L151CCU6
 use stm32l1xx_hal::{
+    pac::{CorePeripherals, Peripherals},
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     rcc, // for ::Config but note name conflict with serial
     spi::Error,
-    stm32::Peripherals,
 };
 
 #[cfg(feature = "stm32l1xx")]
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
     let mut rcc = p.RCC.freeze(rcc::Config::hsi());
 
@@ -537,7 +545,7 @@ fn setup(
 #[cfg(feature = "stm32l4xx")]
 use stm32l4xx_hal::{
     delay::Delay,
-    pac::Peripherals,
+    pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
 };
@@ -546,7 +554,7 @@ use stm32l4xx_hal::{
 fn setup(
 ) -> impl DelayMs<u32> + Receive<Info = PacketInfo, Error = sx127xError<Error, Infallible, Infallible>>
 {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let cp = CorePeripherals::take().unwrap();
     let p = Peripherals::take().unwrap();
     let mut flash = p.FLASH.constrain();
     let mut rcc = p.RCC.constrain();

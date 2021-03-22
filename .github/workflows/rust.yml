@@ -2,10 +2,9 @@ name: Rust
 
 on:
   push:
-    branches: [ master, testing-e-h_0.2.4, examples-testing ]
-    tags: [ 'v*' ]
+    branches: [ all-devices-examples ]
   pull_request:
-    branches: [ master ]
+    branches: [ all-devices-examples ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -26,27 +25,6 @@ jobs:
             use_cross: false
             experimental: false
             args: --features util,driver-pal/hal-cp2130,driver-pal/hal-linux
-
-          # probably want next three targets on master, but they are time consuming when testing examples
-          - target: armv7-unknown-linux-gnueabihf
-            os: ubuntu-latest
-            output: sx127x-util
-            use_cross: false
-            experimental: true
-            args: --features util,driver-pal/hal-cp2130,driver-pal/hal-linux
-          
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            output: sx127x-util
-            use_cross: false
-            experimental: false
-            args: --no-default-features --features util,driver-pal/hal-cp2130
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-            output: sx127x-util.exe
-            use_cross: false
-            experimental: true
-            args: --no-default-features --features util,driver-pal/hal-cp2130
 
     steps:
     - uses: actions/checkout@v2
@@ -205,20 +183,4 @@ jobs:
           args:  --no-default-features --release --target ${{ matrix.trg }} --features ${{ matrix.hal }},${{ matrix.mcu }},compat --example lora_spi_gps
           use-cross: true
 
-  # probably want release on master, but not on forks and branches
-  release:
-    name: Create release
-    runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    steps:
-
-      - name: Create Release
-        uses: actions/create-release@v1
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: Release ${{ github.ref }}
 
