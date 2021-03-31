@@ -49,7 +49,7 @@ old-e-h      = {version = "0.2.4", package = "embedded-hal" }
 libusb-sys = {version ="0.2", optional = true}
 
 embedded-spi = {version = "0.6", default-features = false}
-driver-pal = {version = "0.8.0-alpha.0", default-features = false}
+driver-pal = {version = "0.8.0-alpha.3", default-features = false}
 
 #[dev-dependencies.color-backtrace] # this needs std, which causes example build to fail
 #color-backtrace = "0.5"
