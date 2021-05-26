@@ -710,7 +710,7 @@ name = "radio-sx127x"
 version = "0.11.0"
 dependencies = [
  "bitflags",
- "cortex-m 0.6.7",
+ "cortex-m 0.7.2",
  "cortex-m-rt",
  "cortex-m-semihosting",
  "driver-cp2130",
