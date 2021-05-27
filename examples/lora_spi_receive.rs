@@ -216,7 +216,6 @@ fn setup(
 use stm32f3xx_hal::{
     delay::Delay,
     pac::{CorePeripherals, Peripherals},
-    pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
 };
@@ -231,8 +230,8 @@ fn setup(
     let mut rcc = p.RCC.constrain();
     let clocks = rcc
         .cfgr
-        .sysclk(64.mhz())
-        .pclk1(32.mhz())
+        .sysclk(64.MHz())
+        .pclk1(32.MHz())
         .freeze(&mut p.FLASH.constrain().acr);
 
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb);
@@ -241,12 +240,12 @@ fn setup(
     let spi = Spi::spi1(
         p.SPI1,
         (
-            gpioa.pa5.into_af5(&mut gpioa.moder, &mut gpioa.afrl), // sck   on PA5
-            gpioa.pa6.into_af5(&mut gpioa.moder, &mut gpioa.afrl), // miso  on PA6
-            gpioa.pa7.into_af5(&mut gpioa.moder, &mut gpioa.afrl), // mosi  on PA7
+            gpioa.pa5.into_af5_push_pull(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl), // sck   on PA5
+            gpioa.pa6.into_af5_push_pull(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl), // miso  on PA6
+            gpioa.pa7.into_af5_push_pull(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl), // mosi  on PA7
         ),
         MODE,
-        8.mhz(),
+        8_000_000.Hz(),
         clocks,
         &mut rcc.apb2,
     );
@@ -285,7 +284,6 @@ fn setup(
 #[cfg(feature = "stm32f4xx")]
 use stm32f4xx_hal::{
     delay::Delay,
-    pac::{CorePeripherals, Peripherals},
     pac::{CorePeripherals, Peripherals},
     prelude::*,
     spi::{Error, Spi},
