@@ -540,7 +540,7 @@ fn setup() -> impl DelayMs<u32> + Transmit<Error = sx127xError<Error, void::Void
 
 #[cfg(feature = "stm32l1xx")] // eg  Discovery kit stm32l100 and Heltec lora_node STM32L151CCU6
 use stm32l1xx_hal::{
-    pac::{CorePeripherals, Peripherals},
+    stm32::{CorePeripherals, Peripherals},
     prelude::*,
     rcc, // for ::Config but note name conflict with serial
     spi::Error,
