@@ -31,7 +31,7 @@ jobs:
           - target: armv7-unknown-linux-gnueabihf
             os: ubuntu-latest
             output: sx127x-util
-            use_cross: false
+            use_cross: true
             experimental: true
             args: --features util,driver-pal/hal-cp2130,driver-pal/hal-linux
           
@@ -73,14 +73,14 @@ jobs:
     
     - name: Install libusb (apt native)
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.target == 'x86_64-unknown-linux-gnu' }}
-      run: sudo apt install -y libusb-dev
+      run: sudo apt install -y libusb-1.0-0-dev
 
     - name: Install libusb (apt armv7)
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.target == 'armv7-unknown-linux-gnueabihf' }}
-      run: |
-        sudo dpkg --add-architecture armhf
-        sudo apt update
-        sudo apt install libusb-dev:armhf
+      uses: ryankurte/action-apt@v0.3.0
+      with:
+        arch: armhf
+        packages: libusb-1.0-0-dev:armhf
 
     - name: Install libusb (vcpkg)
       if: ${{ matrix.os == 'windows-latest' }}
@@ -107,7 +107,7 @@ jobs:
     - name: Copy / Rename utility
       run: |
         cp target/${{ matrix.target }}/release/${{ matrix.output }} ${{ matrix.output }}-${{ matrix.target }}
-        tar -cvf sx127x-util-${{ matrix.target }}.tgz ${{ matrix.output }}-${{ matrix.target }}
+        tar -czvf sx127x-util-${{ matrix.target }}.tgz ${{ matrix.output }}-${{ matrix.target }}
 
     - name: Upload utility artifacts
       uses: actions/upload-artifact@v1
