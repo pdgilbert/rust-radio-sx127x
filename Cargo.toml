@@ -12,7 +12,7 @@ pkg-url = "{ repo }/releases/download/v{ version }/sx127x-util-{ target }.tgz"
 bin-dir = "{ bin }-{ target }{ format }"
 
 [features]
-util = [ "structopt", "driver-pal/hal", "simplelog", "humantime" ] 
+util = [ "structopt", "driver-pal", "driver-pal/hal", "simplelog", "humantime" ] 
 default = [ "util", "serde", "driver-pal/hal-cp2130", "driver-pal/hal-linux" ]
 
 # features for examples
@@ -26,19 +26,16 @@ stm32f103   = ["stm32f1xx-hal/stm32f103",   "stm32f1xx-hal/rt", "examples"]
 stm32f411   = ["stm32f4xx-hal/stm32f411",   "stm32f4xx-hal/rt", "examples"]
 
 [dependencies]
-embedded-hal-compat =  { version = "0.1.3", optional = true}
+#embedded-hal-compat =  { version = "0.1.3", optional = true}
 #embedded-hal-compat = { git = "https://github.com/ryankurte/embedded-hal-compat.git", branch = "main", optional = true}
-
-radio = "0.9.1"
-embedded-hal = "1.0.0-alpha.5"
+radio = "0.11.0"
+embedded-hal = "1.0.0-alpha.7"
 
 libc = "0.2"
 log = { version = "0.4" }
 bitflags = "1.0"
 
-driver-pal = { version = "0.8.0-alpha.5", default_features = false }
-linux-embedded-hal = { version = "0.4.0-alpha.1", optional = true }
-driver-cp2130 = { version = "1.0.0-alpha.4", optional = true }
+driver-pal = { version = "0.8.0-alpha.6", default_features = false, optional=true }
 
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 structopt = { version = "0.3.21", optional = true }
