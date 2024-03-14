@@ -24,7 +24,7 @@ pub trait Hal {
     fn delay_ms(&mut self, ms: u32) -> Result<(), Self::Error>;
 
     /// Delay for the specified time
-    fn delay_us(&mut self, us: u32) -> Result<(), Self::Error>;
+    fn delay_ns(&mut self, ns: u32) -> Result<(), Self::Error>;
 
     /// Read from radio with prefix
     fn prefix_read(&mut self, prefix: &[u8], data: &mut [u8]) -> Result<(), Self::Error>;
@@ -169,8 +169,8 @@ where
     }
 
     /// Delay for the specified time
-    fn delay_us(&mut self, us: u32) -> Result<(), Self::Error> {
-        self.delay.delay_us(us);
+    fn delay_ns(&mut self, ns: u32) -> Result<(), Self::Error> {
+        self.delay.delay_ns(ns);
         Ok(())
     }
 

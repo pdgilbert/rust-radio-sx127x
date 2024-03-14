@@ -411,7 +411,7 @@ where
     Hal: base::Hal,
 {
     fn delay_ns(&mut self, t: u32) {
-        self.hal.delay_ns(t);
+        let _ = self.hal.delay_ns(t).map_err(Error::Hal);
     }
 }
 
