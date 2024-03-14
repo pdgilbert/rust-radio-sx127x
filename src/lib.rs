@@ -9,15 +9,15 @@
 #![no_std]
 
 
-use core::convert::TryFrom;
+use core::convert::{Infallible, TryFrom};
 use core::fmt::Debug;
 
-use base::{Base, SpiBase, HalError};
+use base::{Base, HalError};
 use log::{trace, debug, warn};
 
-use embedded_hal::spi::{Mode as SpiMode, Phase, Polarity};
-use embedded_hal::delay::blocking::{DelayUs};
-use embedded_hal::digital::blocking::{InputPin, OutputPin};
+use embedded_hal::spi::{Mode as SpiMode, Phase, Polarity, SpiDevice};
+use embedded_hal::delay::DelayNs;
+use embedded_hal::digital::{InputPin, OutputPin};
 
 use radio::{Power as _, State as _};
 
@@ -104,8 +104,8 @@ impl<Spi, CsPin, BusyPin, ReadyPin, SdnPin, PinError, Delay>
         Base<Spi, CsPin, BusyPin, ReadyPin, SdnPin, Delay>,
     >
 where
-    Spi: SpiBase,
-    <Spi as SpiBase>::Error: Debug,
+    Spi: SpiDevice,
+    <Spi as embedded_hal::spi::ErrorType>::Error: Debug,
 
     CsPin: OutputPin<Error = PinError>,
     BusyPin: InputPin<Error = PinError>,
@@ -113,8 +113,7 @@ where
     SdnPin: OutputPin<Error = PinError>,
     PinError: Debug,
 
-    Delay: DelayUs,
-    <Delay as DelayUs>::Error: Debug,
+    Delay: DelayNs,
 {
     /// Create an Sx127x with the provided SPI implementation and pins
     pub fn spi(
@@ -125,7 +124,7 @@ where
         sdn: SdnPin,
         delay: Delay,
         config: &Config,
-    ) -> Result<Self, Error<HalError<<Spi as SpiBase>::Error, PinError, <Delay as DelayUs>::Error>>> {
+    ) -> Result<Self, Error<HalError<<Spi as embedded_hal::spi::ErrorType>::Error, PinError, Infallible>>> {
         // Create SpiWrapper over spi/cs/busy/ready/reset
         let base = Base{spi, cs, sdn, busy, ready, delay};
 
@@ -407,14 +406,12 @@ where
     }
 }
 
-impl<Hal> DelayUs for Sx127x<Hal>
+impl<Hal> DelayNs for Sx127x<Hal>
 where
     Hal: base::Hal,
 {
-    type Error = Error<<Hal as base::Hal>::Error>;
-
-    fn delay_us(&mut self, t: u32) -> Result<(), Error<<Hal as base::Hal>::Error>> {
-        self.hal.delay_us(t).map_err(Error::Hal)
+    fn delay_ns(&mut self, t: u32) {
+        self.hal.delay_ns(t);
     }
 }
 
