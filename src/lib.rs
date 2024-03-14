@@ -15,7 +15,7 @@ use core::fmt::Debug;
 use base::{Base, HalError};
 use log::{trace, debug, warn};
 
-use embedded_hal::spi::{Mode as SpiMode, Phase, Polarity, SpiDevice};
+use embedded_hal::spi::{Mode as SpiMode, Phase, Polarity, SpiBus};
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
 
@@ -104,7 +104,7 @@ impl<Spi, CsPin, BusyPin, ReadyPin, SdnPin, PinError, Delay>
         Base<Spi, CsPin, BusyPin, ReadyPin, SdnPin, Delay>,
     >
 where
-    Spi: SpiDevice,
+    Spi: SpiBus,
     <Spi as embedded_hal::spi::ErrorType>::Error: Debug,
 
     CsPin: OutputPin<Error = PinError>,

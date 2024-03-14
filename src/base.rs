@@ -8,7 +8,7 @@ use core::fmt::Debug;
 
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{OutputPin, InputPin};
-use embedded_hal::spi::SpiDevice;
+use embedded_hal::spi::SpiBus;
 
 /// HAL trait for radio interaction, may be generic over SPI or UART connections
 pub trait Hal {
@@ -118,7 +118,7 @@ pub enum HalError<Spi, Pin, Delay> {
 }
 
 /// Spi base object defined interface for interacting with radio via SPI
-pub struct Base <Spi: SpiDevice, Cs: OutputPin, Busy: InputPin, Ready: InputPin, Sdn: OutputPin, Delay: DelayNs> {
+pub struct Base <Spi: SpiBus, Cs: OutputPin, Busy: InputPin, Ready: InputPin, Sdn: OutputPin, Delay: DelayNs> {
     pub spi: Spi,
     pub cs: Cs,
     pub busy: Busy,
@@ -130,7 +130,7 @@ pub struct Base <Spi: SpiDevice, Cs: OutputPin, Busy: InputPin, Ready: InputPin,
 /// Implement HAL for base object
 impl<Spi, Cs, Busy, Ready, Sdn, PinError, Delay> Hal for Base<Spi, Cs, Busy, Ready, Sdn, Delay>
 where
-    Spi: SpiDevice,
+    Spi: SpiBus,
     <Spi as embedded_hal::spi::ErrorType>::Error : Debug + 'static,
     
     Cs: OutputPin<Error=PinError>,
