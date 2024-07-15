@@ -4,7 +4,6 @@ use log::{debug, info};
 
 use super::options::*;
 
-// TODO: replace these with `radio::helpers`
 pub fn do_command<T, I, E>(radio: T, operation: Operation) -> Result<(), E>
 where
     T: radio::Transmit<Error = E>
@@ -28,10 +27,12 @@ where
         .expect("Transmit error"),
         Operation::Receive(config) => {
             let mut buff = [0u8; 255];
+            let mut info = I::default();
 
             do_receive(
                 radio,
                 &mut buff,
+                &mut info,
                 config.continuous,
                 *config.poll_interval,
             )
@@ -39,10 +40,12 @@ where
         }
         Operation::Repeat(config) => {
             let mut buff = [0u8; 255];
+            let mut info = I::default();
 
             do_repeat(
                 radio,
                 &mut buff,
+                &mut info,
                 config.power,
                 config.continuous,
                 *config.delay,
@@ -94,6 +97,7 @@ where
 pub fn do_receive<T, I, E>(
     mut radio: T,
     mut buff: &mut [u8],
+    mut info: &mut I,
     continuous: bool,
     poll_interval: Duration,
 ) -> Result<usize, E>
@@ -106,7 +110,7 @@ where
 
     loop {
         if radio.check_receive(true)? {
-            let (n, info) = radio.get_received(&mut buff)?;
+            let n = radio.get_received(&mut info, &mut buff)?;
 
             match std::str::from_utf8(&buff[0..n as usize]) {
                 Ok(s) => info!("Received: '{}' info: {:?}", s, info),
@@ -151,6 +155,7 @@ where
 pub fn do_repeat<T, I, E>(
     mut radio: T,
     mut buff: &mut [u8],
+    mut info: &mut I,
     power: i8,
     continuous: bool,
     delay: Duration,
@@ -168,7 +173,7 @@ where
 
     loop {
         if radio.check_receive(true)? {
-            let (n, info) = radio.get_received(&mut buff)?;
+            let n = radio.get_received(&mut info, &mut buff)?;
 
             match std::str::from_utf8(&buff[0..n as usize]) {
                 Ok(s) => info!("Received: '{}' info: {:?}", s, info),

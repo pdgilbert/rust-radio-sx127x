@@ -7,7 +7,6 @@
 use core::convert::TryFrom;
 
 pub mod regs;
-use radio::RadioState;
 use regs::{Common, Fsk, LoRa, Register};
 
 pub mod common;
@@ -67,13 +66,6 @@ impl Default for PacketInfo {
     }
 }
 
-
-impl radio::ReceiveInfo for PacketInfo {
-    fn rssi(&self) -> i16 {
-        self.rssi
-    }
-}
-
 /// Radio modem configuration contains fields for each modem mode
 #[derive(Clone, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))] 
@@ -118,16 +110,6 @@ pub enum State {
     RxOnce = 0x06,
     /// Lora specific channel activity detection mode
     Cad = 0x07,
-}
-
-impl RadioState for State {
-    fn idle() -> Self {
-        State::Standby
-    }
-
-    fn sleep() -> Self {
-        State::Sleep
-    }
 }
 
 /// Sx127x Power Amplifier (PA) configuration
