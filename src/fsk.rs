@@ -5,13 +5,15 @@
 //! Copyright 2019 Ryan Kurte
 
 
+use core::fmt::Debug;
+
 use radio::State as _;
 
 use log::{trace, debug};
 
 use crate::{Error, Mode, Sx127x};
 
-use crate::base;
+use crate::base::Base as Sx127xBase;
 use crate::device::fsk::*;
 use crate::device::fsk::{Irq1, Irq2};
 use crate::device::{self, regs, Channel, Modem, ModemMode, PacketInfo, State};
@@ -19,15 +21,23 @@ use crate::device::{self, regs, Channel, Modem, ModemMode, PacketInfo, State};
 /// Marker struct for FSK/OOK operating mode
 pub struct FskOokMode();
 
-impl<Hal> Sx127x<Hal>
+impl<Base, CommsError, PinError, DelayError> Sx127x<Base, CommsError, PinError, DelayError> where
+    Base: Sx127xBase<CommsError, PinError, DelayError>
+{
+}
+
+impl<Base, CommsError, PinError, DelayError> Sx127x<Base, CommsError, PinError, DelayError>
 where
-    Hal: base::Hal,
+    Base: Sx127xBase<CommsError, PinError, DelayError>,
+    CommsError: Debug + Sync + Send + 'static,
+    PinError: Debug + Sync + Send + 'static,
+    DelayError: Debug + Sync + Send + 'static,
 {
     pub(crate) fn fsk_configure(
         &mut self,
         config: &FskConfig,
         channel: &FskChannel,
-    ) -> Result<(), Error<<Hal as base::Hal>::Error>> {
+    ) -> Result<(), Error<CommsError, PinError, DelayError>> {
         debug!("Configuring FSK/OOK mode: {:?} {:?}", config, channel);
 
         // Switch to sleep to change modem mode
@@ -114,7 +124,7 @@ where
     pub(crate) fn fsk_get_interrupts(
         &mut self,
         clear: bool,
-    ) -> Result<(Irq1, Irq2), Error<<Hal as base::Hal>::Error>> {
+    ) -> Result<(Irq1, Irq2), Error<CommsError, PinError, DelayError>> {
         let reg = self.read_reg(regs::Fsk::IRQFLAGS1)?;
         let irq1 = Irq1::from_bits(reg).unwrap();
 
@@ -138,7 +148,7 @@ where
     pub(crate) fn fsk_set_channel(
         &mut self,
         channel: &FskChannel,
-    ) -> Result<(), Error<<Hal as base::Hal>::Error>> {
+    ) -> Result<(), Error<CommsError, PinError, DelayError>> {
         // Set frequency
         self.set_frequency(channel.freq)?;
 
@@ -178,7 +188,7 @@ where
     pub(crate) fn fsk_start_transmit(
         &mut self,
         data: &[u8],
-    ) -> Result<(), Error<<Hal as base::Hal>::Error>> {
+    ) -> Result<(), Error<CommsError, PinError, DelayError>> {
         debug!("Starting send (data: {:?})", data);
 
         // TODO: support large packet sending
@@ -202,7 +212,7 @@ where
     }
 
     /// Check for packet send completion
-    pub(crate) fn fsk_check_transmit(&mut self) -> Result<bool, Error<<Hal as base::Hal>::Error>> {
+    pub(crate) fn fsk_check_transmit(&mut self) -> Result<bool, Error<CommsError, PinError, DelayError>> {
         // Fetch interrupts
         let (i1, i2) = self.fsk_get_interrupts(true)?;
 
@@ -216,7 +226,7 @@ where
         Ok(false)
     }
 
-    pub(crate) fn fsk_start_receive(&mut self) -> Result<(), Error<<Hal as base::Hal>::Error>> {
+    pub(crate) fn fsk_start_receive(&mut self) -> Result<(), Error<CommsError, PinError, DelayError>> {
         debug!("Starting receive");
 
         // Revert to standby state
@@ -249,7 +259,7 @@ where
     pub(crate) fn fsk_check_receive(
         &mut self,
         restart: bool,
-    ) -> Result<bool, Error<<Hal as base::Hal>::Error>> {
+    ) -> Result<bool, Error<CommsError, PinError, DelayError>> {
         // Fetch interrupts
         let (i1, i2) = self.fsk_get_interrupts(true)?;
         let s = self.get_state()?;
@@ -286,8 +296,9 @@ where
     ///  and returns the number of bytes received on success
     pub(crate) fn fsk_get_received(
         &mut self,
+        info: &mut PacketInfo,
         data: &mut [u8],
-    ) -> Result<(usize, PacketInfo), Error<<Hal as base::Hal>::Error>> {
+    ) -> Result<usize, Error<CommsError, PinError, DelayError>> {
 
         let mut len = [0u8; 1];
         // Read the length byte from the FIFO
@@ -302,19 +313,16 @@ where
         self.hal.read_buff(&mut data[..len])?;
 
         // Read the RSSI
-        let info = PacketInfo{
-            rssi: self.fsk_poll_rssi()?,
-            snr: None,
-        };
+        info.rssi = self.fsk_poll_rssi()?;
 
         debug!("Received data: {:?} info: {:?}", &data[0..len], &info);
 
-        Ok((len, info))
+        Ok(len)
     }
 
     /// Poll for the current channel RSSI
     /// This should only be called in receive mode
-    pub(crate) fn fsk_poll_rssi(&mut self) -> Result<i16, Error<<Hal as base::Hal>::Error>> {
+    pub(crate) fn fsk_poll_rssi(&mut self) -> Result<i16, Error<CommsError, PinError, DelayError>> {
         let raw_rssi = self.read_reg(regs::Fsk::RSSIVALUE)?;
 
         let rssi = -((raw_rssi / 2) as i16);
