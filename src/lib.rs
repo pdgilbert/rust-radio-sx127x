@@ -19,6 +19,7 @@ use embedded_hal::spi::{Mode as SpiMode, Phase, Polarity, SpiBus};
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
 
+pub use radio::{Transmit, Receive};
 use radio::{Power as _, State as _};
 
 pub mod base;
