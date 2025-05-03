@@ -54,7 +54,7 @@ old-e-h      = {version = "0.2.4", package = "embedded-hal" }
 
 
 [dev-dependencies]                     # for examples
-cortex-m = "0.6.7"
+cortex-m = "0.7.3"
 cortex-m-rt = "0.6.13"
 cortex-m-semihosting = "0.3.7"
 panic-halt = "0.2.0"
